@@ -1,10 +1,10 @@
 name := "scala-storm"
 
-scalaVersion := "2.11.4"
+scalaVersion := "2.11.6"
 
 val stormVersion = "0.9.3"
 
-crossScalaVersions := Seq("2.10.4", "2.11.4")
+crossScalaVersions := Seq("2.10.5", "2.11.6")
 
 organization := "com.github.velvia"
 

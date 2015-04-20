@@ -83,10 +83,17 @@ class TestBolt extends StormBolt(outputFields = List()) {
     _context.registerMetric("metric:2", metric2, 1)
   }
 
-  override def execute(t: Tuple): Unit = {
+  // first action: update metrices
+  process { _ =>
     metric1.incr()
     metric2.incr()
-    t.ack
+  }
+
+  // don't do anything special; just ack the tuple
+  process { _.ack }
+
+  onError { (tuple, errorCause) =>
+    tuple.fail
   }
 
   override def getComponentConfiguration : JMap[String, Object] = {

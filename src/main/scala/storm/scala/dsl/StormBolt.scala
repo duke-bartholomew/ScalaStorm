@@ -20,27 +20,30 @@ import java.util.{Map => JMap}
 //   <tuple> emit (...)
 //   using no anchor emit (...)
 abstract class StormBolt(val streamToFields: collection.Map[String, List[String]])
-    extends BaseRichBolt with SetupFunc with ShutdownFunc with BoltDsl {
+    extends BaseRichBolt with SetupFunc with ShutdownFunc with ProcessFunc with BoltDsl {
     var _context: TopologyContext = _
     var _conf: JMap[_, _] = _
 
     // A constructor for the common case when you just want to output to the default stream
     def this(outputFields: List[String]) = { this(Map("default" -> outputFields)) }
 
-    def prepare(conf:JMap[_, _], context:TopologyContext, collector:OutputCollector) {
+
+    final override def prepare(conf:JMap[_, _], context:TopologyContext, collector:OutputCollector) {
         _collector = collector
         _context = context
         _conf = conf
         _setup()
     }
 
-    def declareOutputFields(declarer: OutputFieldsDeclarer) {
+    final override def declareOutputFields(declarer: OutputFieldsDeclarer) {
       streamToFields foreach { case(stream, fields) =>
         declarer.declareStream(stream, new Fields(fields:_*))
       }
     }
-    
-    override def cleanup() = _cleanup()
+
+    final override def cleanup() = _cleanup()
+
+    final override def execute(t: Tuple): Unit = _process(t)
 }
 
 /**
